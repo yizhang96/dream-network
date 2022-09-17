@@ -129,4 +129,4 @@ dmypy.json
 .pyre/
 
 #do not upload cdv file
-dream_corpus.csv
+*.csv
