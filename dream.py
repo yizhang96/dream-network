@@ -108,7 +108,6 @@ nxgraph = nx.relabel_nodes(nxgraph, mapping)
 d = dict(nxgraph.degree)
 
 #plot the distribution of degrees
-
 #set color gradient
 def hex_to_RGB(hex_str):
     """ #FFFFFF -> [255,255,255]"""
@@ -126,11 +125,12 @@ def get_color_gradient(c1, c2, n):
     mix_pcts = [x/(n-1) for x in range(n)]
     rgb_colors = [((1-mix)*c1_rgb + (mix*c2_rgb)) for mix in mix_pcts]
     return ["#" + "".join([format(int(round(val*255)), "02x") for val in item]) for item in rgb_colors]
+
 #define color gradient for plot
 color1 = "#23abeb"
 color2 = "#a2dffc"
 
-#sort dictionary
+#sort dictionary by degree centralitys
 d_sorted = sorted(d.items(), key=lambda kv: kv[1], reverse = True)
 d_sorted = collections.OrderedDict(d_sorted)
 keys = d_sorted.keys()
@@ -138,6 +138,11 @@ values = d_sorted.values()
 plt.bar(list(keys)[0:14], list(values)[0:14], color = get_color_gradient(color1, color2, 15))
 plt.xticks(rotation = "vertical", size = 7)
 plt.title("Degree centrality of first 15 characters in dreams")
+plt.show()
+
+#plot histogram for degree distribution
+plt.hist(list(values), color="#F3A0F2",  bins=20)
+plt.title("Distribution of degree centrality across all characters")
 plt.show()
 
 #calculate and print network metrics:
@@ -152,7 +157,10 @@ print('degree assortativity', "{:.3f}".format(assortativity))
 
 #show network plot
 #set node size by degree centrality
-nx.draw(nxgraph, with_labels=True, 
-    node_size=[math.sqrt(v+1) * 500 for v in d.values()])
+pos = nx.spring_layout(nxgraph, scale=20, k=3/np.sqrt(nxgraph.order()))
+nx.draw(nxgraph, pos, with_labels=False, 
+    node_size=[math.sqrt(v+1) * 80 for v in d.values()],
+    node_color = "#6dc9c0",
+    edge_color = "#c5c7c5")
 #set node color by centrality
 plt.show()
