@@ -11,10 +11,14 @@ import matplotlib.pyplot as plt
 
 import collections
 
-text = '''
-This is a sample text that contains the name Alex Smith who is one of the developers of this project.
-You can also find the surname Jones here.
-'''
+#PATH in terminal: ~/Library/Mobile\ Documents/com~apple~CloudDocs/Documents/
+
+######################SETTING UP####################
+#Which type of network would you like to create?
+#PERSON: people that co-appeared in dreams
+#GPE: geo-political entities (e.g. cities)
+network_type = "PERSON"
+
 
 #reading csv file containing dreams
 # importing csv module
@@ -48,6 +52,8 @@ dream_name_list_all = list()
 #skip these names (because they are created by mistake)
 stop_names = list()
 
+
+######################DEMO: NLP####################
 # NLP for five random rows print results
 print('\nBelow are the first five dreams:\n')
 count = 0
@@ -68,7 +74,7 @@ for dream in dreams:
                 print ('Type: ', nltk_result.label(), 'Name: ', name)
             #add name to dream and total name lists
             #add name to single dream's name list
-            if nltk_result.label() == 'PERSON': #change to plot networks of other types
+            if nltk_result.label() == network_type: #change to plot networks of other types
                 if name not in dream_name_list:
                     dream_name_list.append(name)
                 if name not in name_list:
@@ -78,7 +84,19 @@ for dream in dreams:
     #for col in row:
     #    print("%10s"%col,end="\n"),
 
+######################DEMO: SENTIMENT####################
+#Next, we extract the emotions in each dream entry, and
+#create a network of emotions based on their co-occurence in
+#dreams
 
+
+
+
+
+
+
+
+######################CREATE GRAPH####################
 #check name lists
 #print('\nThis is the list of all names that ever appeared:\n')
 #print(name_list)
@@ -101,11 +119,19 @@ for dream_name_list in dream_name_list_all:
 #create and plot graph using neworkX
 nxgraph = nx.from_numpy_matrix(graph)
 
+#add edge weight (as number of co-occurences)
+for (i, j), value in np.ndenumerate(graph):
+    if i < j:
+        if value != 0:
+            nxgraph.add_edge(i, j, weight=value)
 
 #rename nodes with character names
 mapping = dict(zip(nxgraph, name_list))
 nxgraph = nx.relabel_nodes(nxgraph, mapping)
 d = dict(nxgraph.degree)
+
+
+######################VISUALIZATION####################
 
 #plot the distribution of degrees
 #set color gradient
@@ -158,8 +184,12 @@ print('degree assortativity', "{:.3f}".format(assortativity))
 #show network plot
 #set node size by degree centrality
 pos = nx.spring_layout(nxgraph, scale=20, k=3/np.sqrt(nxgraph.order()))
-nx.draw(nxgraph, pos, with_labels=False, 
+#set edge width by weight
+weights = [nxgraph[u][v]['weight'] for u,v in nxgraph.edges]
+#plot graph
+nx.draw(nxgraph, pos, with_labels=True, 
     node_size=[math.sqrt(v+1) * 80 for v in d.values()],
+    width = weights,
     node_color = "#6dc9c0",
     edge_color = "#c5c7c5")
 #set node color by centrality
